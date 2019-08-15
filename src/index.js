@@ -1,25 +1,41 @@
 const { GraphQLServer } = require('graphql-yoga')
 
-// 1
-// Defines GraphQL Schema
-// ! means NOT NULL
-const typeDefs = `
-type Query {
-  info: String!
-}
-`
+// List kept in global namespace until database is implemented
+let links = [{
+  id: 'link-0',
+  url: 'https://ulises.io',
+  description: 'My portfolio website'
+},
+{
+  id: 'link-1',
+  url: 'www.howtographql.com',
+  description: 'Thanks for the fullstack tutorial for GraphQL'
+}]
 
-//2 
+let idCount = links.length
+
 // Implementation of the schema
+// Every field in the schema needs a resolver function that returns data for that field
 const resolvers = {
   Query: {
-    info: () => null
+    info: () => "This is the application's API",
+    feed: () => links 
+  },
+  Mutation: {
+    post: (parent, args) => {
+      const link = {
+        id: `link-${idCount++}`,
+        description: args.description,
+        url: args.url
+      }
+      links.push(link)
+      return link
+    }
   }
 }
 
-// 3
 const server = new GraphQLServer({
-  typeDefs,
+  typeDefs: './src/schema.graphql',
   resolvers
 })
 
